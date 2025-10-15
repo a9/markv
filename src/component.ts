@@ -24,7 +24,7 @@ export const Markdown = defineComponent<Options>({
   ],
   setup(props) {
     const hastTree = createAST(props)
-    console.log(hastTree)
+    // console.log(hastTree)
     const components = props.components
 
     return () =>
