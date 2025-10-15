@@ -10,6 +10,7 @@ import { type Options } from './types'
 export const Markdown = defineComponent<Options>({
   name: 'Markdown',
   props: [
+    'class',
     'content',
     'allowedElements',
     'allowElement',
