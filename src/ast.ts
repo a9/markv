@@ -1,5 +1,5 @@
 import { unreachable } from 'devlop'
-import { type Nodes, type Root } from 'hast'
+import { ElementContent, type Nodes, type Root } from 'hast'
 import { urlAttributes } from 'html-url-attributes'
 import remarkParse from 'remark-parse'
 import remarkRehype from 'remark-rehype'
@@ -24,6 +24,7 @@ export const createAST = ({
   skipHtml,
   unwrapDisallowed,
   urlTransform = defaultUrlTransform,
+  ...options
 }: Options) => {
   const children = content
   rehypePlugins = defaultPlugins(rehypePlugins)
@@ -56,17 +57,17 @@ export const createAST = ({
   let hastTree: Nodes = processor.runSync(mdastTree, file)
 
   // Wrap in `div` if there’s a class name.
-  // if (className) {
-  //   hastTree = {
-  //     type: 'element',
-  //     tagName: 'div',
-  //     properties: { className },
-  //     // Assume no doctypes.
-  //     children: (hastTree.type === 'root'
-  //       ? hastTree.children
-  //       : [hastTree]) as ElementContent[],
-  //   }
-  // }
+  if (options.class) {
+    hastTree = {
+      type: 'element',
+      tagName: 'div',
+      properties: { class: options.class },
+      // Assume no doctypes.
+      children: (hastTree.type === 'root'
+        ? hastTree.children
+        : [hastTree]) as ElementContent[],
+    }
+  }
 
   const transform: BuildVisitor<Root> = (node, index, parent) => {
     if (node.type === 'raw' && parent && typeof index === 'number') {

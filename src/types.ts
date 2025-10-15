@@ -50,7 +50,7 @@ export type Options = {
   content?: string | null
 
   // Wrap in a `div` with this class name.
-  className?: string | null
+  class?: string | null
 
   // Map tag names to components.
   components?: Components | null
