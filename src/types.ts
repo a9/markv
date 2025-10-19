@@ -1,4 +1,4 @@
-import { type Element, type Parents } from 'hast'
+import type { Element, Parents } from 'hast'
 import type { Components } from 'hast-util-to-jsx-runtime'
 import type { PluggableList } from 'unified'
 import type { RemarkRehypeOptions } from './remark'
@@ -13,11 +13,7 @@ export { type Components } from 'hast-util-to-jsx-runtime'
  * @param {Readonly<Element>} node Node.
  * @returns {string | null | undefined} Transformed URL (optional).
  */
-type UrlTransform = (
-  url: string,
-  key: string,
-  node: Readonly<Element>
-) => string | null | undefined
+type UrlTransform = (url: string, key: string, node: Readonly<Element>) => string | null | undefined
 
 // Extra fields we pass.
 type ExtraProps = {
@@ -32,7 +28,7 @@ type AllowElement = (
   // Element to check.
   index: number,
   // Index of `element` in `parent`.
-  parent?: Readonly<Parents>
+  parent?: Readonly<Parents>,
 ) => // Parent of `element`.
 boolean | null | undefined
 

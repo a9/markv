@@ -1,5 +1,5 @@
 import { unreachable } from 'devlop'
-import { ElementContent, type Nodes, type Root } from 'hast'
+import type { ElementContent, Nodes, Root } from 'hast'
 import { urlAttributes } from 'html-url-attributes'
 import remarkParse from 'remark-parse'
 import remarkRehype from 'remark-rehype'
@@ -12,6 +12,24 @@ import {
   defaultRemarkRehypeOptions,
   defaultUrlTransform,
 } from './utils'
+
+const createProcessor = ({
+  rehypePlugins,
+  remarkPlugins,
+  remarkRehypeOptions,
+}: Options) => {
+  rehypePlugins = defaultPlugins(rehypePlugins)
+  remarkPlugins = defaultPlugins(remarkPlugins)
+  remarkRehypeOptions = defaultRemarkRehypeOptions(remarkRehypeOptions)
+
+  const processor = unified()
+    .use(remarkParse)
+    .use(remarkPlugins)
+    .use(remarkRehype, remarkRehypeOptions)
+    .use(rehypePlugins)
+
+  return processor
+}
 
 export const createAST = ({
   content,
@@ -27,15 +45,12 @@ export const createAST = ({
   ...options
 }: Options) => {
   const children = content
-  rehypePlugins = defaultPlugins(rehypePlugins)
-  remarkPlugins = defaultPlugins(remarkPlugins)
-  remarkRehypeOptions = defaultRemarkRehypeOptions(remarkRehypeOptions)
 
-  const processor = unified()
-    .use(remarkParse)
-    .use(remarkPlugins)
-    .use(remarkRehype, remarkRehypeOptions)
-    .use(rehypePlugins)
+  const processor = createProcessor({
+    rehypePlugins,
+    remarkPlugins,
+    remarkRehypeOptions,
+  })
 
   const file = new VFile()
 
@@ -88,7 +103,7 @@ export const createAST = ({
         ) {
           const value = node.properties[key]
           const test = urlAttributes[key]
-          if (test === null || test.includes(node.tagName)) {
+          if (test === null || test?.includes(node.tagName)) {
             node.properties[key] = urlTransform(String(value || ''), key, node)
           }
         }

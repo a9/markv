@@ -24,12 +24,10 @@ export const Markdown = defineComponent<Options>({
     'urlTransform',
   ],
   setup(props) {
-    const hastTree = createAST(props)
-    // console.log(hastTree)
-    const components = props.components
-
-    return () =>
-      toJsxRuntime(hastTree, {
+    return () => {
+      const hastTree = createAST(props)
+      const components = props.components
+      return toJsxRuntime(hastTree, {
         Fragment,
         // React components are allowed to return numbers,
         // but not according to the types in hast-util-to-jsx-runtime
@@ -41,5 +39,6 @@ export const Markdown = defineComponent<Options>({
         passKeys: true,
         passNode: true,
       })
+    }
   },
 })
