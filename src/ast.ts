@@ -1,5 +1,5 @@
 import { unreachable } from 'devlop'
-import type { ElementContent, Nodes, Root } from 'hast'
+import type { ElementContent, Root } from 'hast'
 import { urlAttributes } from 'html-url-attributes'
 import remarkParse from 'remark-parse'
 import remarkRehype from 'remark-rehype'
@@ -7,11 +7,8 @@ import { unified } from 'unified'
 import { visit, type BuildVisitor } from 'unist-util-visit'
 import { VFile } from 'vfile'
 import { type Options } from './types'
-import {
-  defaultPlugins,
-  defaultRemarkRehypeOptions,
-  defaultUrlTransform,
-} from './utils'
+import { defaultPlugins } from './define'
+import { defaultRemarkRehypeOptions, defaultUrlTransform } from './default'
 
 const createProcessor = ({
   rehypePlugins,
@@ -31,27 +28,7 @@ const createProcessor = ({
   return processor
 }
 
-export const createAST = ({
-  content,
-  allowedElements,
-  allowElement,
-  disallowedElements,
-  rehypePlugins,
-  remarkPlugins,
-  remarkRehypeOptions,
-  skipHtml,
-  unwrapDisallowed,
-  urlTransform = defaultUrlTransform,
-  ...options
-}: Options) => {
-  const children = content
-
-  const processor = createProcessor({
-    rehypePlugins,
-    remarkPlugins,
-    remarkRehypeOptions,
-  })
-
+const createFile = ({ children }: { children?: string | null }) => {
   const file = new VFile()
 
   if (typeof children === 'string') {
@@ -61,27 +38,38 @@ export const createAST = ({
       `Unexpected value \`${children}\` for \`children\` prop, expected \`string\``
     )
   }
+  return file
+}
 
+const post = (
+  tree: Root,
+  {
+    allowedElements,
+    disallowedElements,
+    allowElement,
+    skipHtml,
+    unwrapDisallowed,
+    urlTransform = defaultUrlTransform,
+    ...options
+  }: Options
+) => {
   if (allowedElements && disallowedElements) {
     unreachable(
       'Unexpected combined `allowedElements` and `disallowedElements`, expected one or the other'
     )
   }
 
-  const mdastTree = processor.parse(file)
-  let hastTree: Nodes = processor.runSync(mdastTree, file)
-
   // Wrap in `div` if there’s a class name.
   if (options.class) {
-    hastTree = {
+    tree = {
       type: 'element',
       tagName: 'div',
       properties: { class: options.class },
       // Assume no doctypes.
-      children: (hastTree.type === 'root'
-        ? hastTree.children
-        : [hastTree]) as ElementContent[],
-    }
+      children: (tree.type === 'root'
+        ? tree.children
+        : [tree]) as ElementContent[],
+    } as unknown as Root
   }
 
   const transform: BuildVisitor<Root> = (node, index, parent) => {
@@ -135,7 +123,13 @@ export const createAST = ({
     }
   }
 
-  visit(hastTree as Root, transform)
+  visit(tree as Root, transform)
 
-  return hastTree
+  return tree
+}
+
+export const createAST = (options: Options) => {
+  const processor = createProcessor(options)
+  const file = createFile({ children: options.content })
+  return post(processor.runSync(processor.parse(file), file), options)
 }

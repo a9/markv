@@ -1,6 +1,6 @@
 import { toJsxRuntime } from 'hast-util-to-jsx-runtime'
 import { defineComponent } from 'vue'
-import { Fragment, jsx, jsx as jsxs } from 'vue/jsx-runtime'
+import { Fragment, jsx, jsxs } from 'vue/jsx-runtime'
 import { createAST } from './ast'
 import { type Options } from './types'
 
@@ -23,14 +23,11 @@ export const Markdown = defineComponent<Options>({
     'unwrapDisallowed',
     'urlTransform',
   ],
-  setup(props) {
+  setup({ components, ...props }) {
     return () => {
-      const hastTree = createAST(props)
-      const components = props.components
-      return toJsxRuntime(hastTree, {
+      const tree = createAST(props)
+      return toJsxRuntime(tree, {
         Fragment,
-        // React components are allowed to return numbers,
-        // but not according to the types in hast-util-to-jsx-runtime
         components,
         ignoreInvalidStyle: true,
         elementAttributeNameCase: 'html',

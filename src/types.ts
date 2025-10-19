@@ -1,7 +1,7 @@
 import type { Element, Parents } from 'hast'
 import type { Components } from 'hast-util-to-jsx-runtime'
 import type { PluggableList } from 'unified'
-import type { RemarkRehypeOptions } from './remark'
+import { RemarkRehypeOptions } from './define'
 
 export type { Element, ElementContent } from 'hast'
 export { type Components } from 'hast-util-to-jsx-runtime'

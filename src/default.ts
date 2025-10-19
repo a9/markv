@@ -1,5 +1,4 @@
 import { type Options as RemarkRehypeOptions } from 'remark-rehype'
-import type { PluggableList } from 'unified'
 
 /**
  * Make a URL safe.
@@ -14,8 +13,6 @@ export function defaultUrlTransform(value: string): string {
   return value
 }
 
-const emptyPlugins: PluggableList = []
-
 const emptyRemarkRehypeOptions: Readonly<RemarkRehypeOptions> = {
   allowDangerousHtml: true,
 }
@@ -26,8 +23,4 @@ export const defaultRemarkRehypeOptions = (
   return options
     ? { ...options, ...emptyRemarkRehypeOptions }
     : emptyRemarkRehypeOptions
-}
-
-export const defaultPlugins = (plugins?: PluggableList | null) => {
-  return plugins || emptyPlugins
 }
